@@ -95,12 +95,8 @@ export function Pools() {
         token1: liquidityData.token1,
         fee: liquidityData.fee,
         tickSpacing: liquidityData.tickSpacing,
-        tickLower: -1000 * liquidityData.tickSpacing, // Wide range
-        tickUpper: 1000 * liquidityData.tickSpacing,  // Wide range
         amount0Desired: liquidityData.amount0,
-        amount1Desired: liquidityData.amount1,
-        amount0Min: '0', // Accept any amount of slippage
-        amount1Min: '0'
+        amount1Desired: liquidityData.amount1
       });
       
       if (result) {

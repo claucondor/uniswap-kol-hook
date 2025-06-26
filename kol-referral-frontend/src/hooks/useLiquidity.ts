@@ -30,12 +30,8 @@ interface AddLiquidityParams {
   token1: string;
   fee: number;
   tickSpacing: number;
-  tickLower: number;
-  tickUpper: number;
   amount0Desired: string;
   amount1Desired: string;
-  amount0Min?: string;
-  amount1Min?: string;
 }
 
 export function useLiquidity() {
@@ -95,34 +91,62 @@ export function useLiquidity() {
       const provider = getProvider();
       const signer = await provider.getSigner();
 
+      // Determine correct token order (following AddLiquidityNewUser.s.sol exactly)
+      let currency0: string;
+      let currency1: string;
+      let amount0Desired: string;
+      let amount1Desired: string;
+      
+      if (params.token0.toLowerCase() < params.token1.toLowerCase()) {
+        currency0 = params.token0;
+        currency1 = params.token1;
+        amount0Desired = params.amount0Desired;
+        amount1Desired = params.amount1Desired;
+        console.log("Currency0 (token0):", currency0);
+        console.log("Currency1 (token1):", currency1);
+      } else {
+        currency0 = params.token1;
+        currency1 = params.token0;
+        amount0Desired = params.amount1Desired;
+        amount1Desired = params.amount0Desired;
+        console.log("Currency0 (token1):", currency0);
+        console.log("Currency1 (token0):", currency1);
+      }
+
       // Check token balances first
-      const token0Contract = new ethers.Contract(params.token0, ERC20_ABI, provider);
-      const token1Contract = new ethers.Contract(params.token1, ERC20_ABI, provider);
+      const token0Contract = new ethers.Contract(currency0, ERC20_ABI, provider);
+      const token1Contract = new ethers.Contract(currency1, ERC20_ABI, provider);
       
       const balance0 = await token0Contract.balanceOf(address);
       const balance1 = await token1Contract.balanceOf(address);
       
-      const amount0BigInt = ethers.parseEther(params.amount0Desired);
-      const amount1BigInt = ethers.parseEther(params.amount1Desired);
+      const amount0BigInt = ethers.parseEther(amount0Desired);
+      const amount1BigInt = ethers.parseEther(amount1Desired);
       
       if (balance0 < amount0BigInt) {
-        toast.error('Insufficient KOLTEST1 balance');
+        toast.error('Insufficient token0 balance');
         return null;
       }
       
       if (balance1 < amount1BigInt) {
-        toast.error('Insufficient KOLTEST2 balance');
+        toast.error('Insufficient token1 balance');
         return null;
       }
 
       // Setup Permit2 approvals (following AddLiquidityNewUser.s.sol)
-      await setupPermit2Approvals(params.token0, params.token1, provider);
+      await setupPermit2Approvals(currency0, currency1, provider);
 
-      // Use fixed tick range like the script does (no need to query pool state for wide range)
-      // The script uses a wide range around current price, we'll do the same
+      // Use fixed tick range like the script does (exactly matching AddLiquidityNewUser.s.sol)
       const tickSpacing = params.tickSpacing;
       const tickLower = -1000 * tickSpacing; // Wide range
       const tickUpper = 1000 * tickSpacing;  // Wide range
+
+      // Calculate liquidity amount (using a reasonable amount like in the script)
+      const liquidityAmount = ethers.parseEther('1000000'); // 1M liquidity units
+      
+      // Slippage protection (1% extra like in the script)
+      const amount0Max = amount0BigInt + (amount0BigInt / 100n);
+      const amount1Max = amount1BigInt + (amount1BigInt / 100n);
 
       // Prepare V4 actions (following AddLiquidityNewUser.s.sol exactly)
       const Actions = {
@@ -130,41 +154,55 @@ export function useLiquidity() {
         SETTLE_PAIR: 0x0d
       };
 
-      // Encode actions
+      // Encode actions as packed bytes (exactly like the script)
       const actions = ethers.solidityPacked(['uint8', 'uint8'], [Actions.MINT_POSITION, Actions.SETTLE_PAIR]);
 
       // IMPORTANT: Pass user address in hookData for referral resolution (like the script)
       const hookData = ethers.AbiCoder.defaultAbiCoder().encode(['address'], [address]);
 
-      // Prepare parameters for each action (following exact structure from AddLiquidityNewUser.s.sol)
-      // Use a reasonable liquidity amount (the script calculates this, but we'll use a simple approach)
-      const liquidityAmount = ethers.parseEther('1000000'); // 1M liquidity units
+      // Prepare parameters for each action (following EXACT structure from AddLiquidityNewUser.s.sol)
+      const params0 = new Array(2);
       
-      const mintPositionParams = ethers.AbiCoder.defaultAbiCoder().encode(
-        ['tuple(address,address,uint24,int24,address)', 'int24', 'int24', 'uint256', 'uint128', 'uint128', 'address', 'bytes'],
+      // Parameters for MINT_POSITION - EXACT same structure as the script
+      params0[0] = ethers.AbiCoder.defaultAbiCoder().encode(
         [
-          [params.token0, params.token1, params.fee, params.tickSpacing, CONTRACTS.REFERRAL_HOOK], // PoolKey
+          'tuple(address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks)',
+          'int24',
+          'int24', 
+          'uint256',
+          'uint128',
+          'uint128',
+          'address',
+          'bytes'
+        ],
+        [
+          {
+            currency0: currency0,
+            currency1: currency1,
+            fee: params.fee,
+            tickSpacing: params.tickSpacing,
+            hooks: CONTRACTS.REFERRAL_HOOK
+          }, // PoolKey
           tickLower,
           tickUpper,
-          liquidityAmount, // liquidity amount
-          amount0BigInt, // amount0Max
-          amount1BigInt, // amount1Max
+          liquidityAmount, // liquidity
+          amount0Max, // amount0Max
+          amount1Max, // amount1Max
           address, // recipient
-          hookData // CONTAINS USER ADDRESS FOR REFERRAL RESOLUTION
+          hookData // hookData - CONTAINS USER ADDRESS FOR REFERRAL RESOLUTION
         ]
       );
 
-      const settlePairParams = ethers.AbiCoder.defaultAbiCoder().encode(
+      // Parameters for SETTLE_PAIR - EXACT same structure as the script
+      params0[1] = ethers.AbiCoder.defaultAbiCoder().encode(
         ['address', 'address'],
-        [params.token0, params.token1]
+        [currency0, currency1]
       );
 
-      const allParams = [mintPositionParams, settlePairParams];
-      
-      // Encode unlock data
+      // Encode unlock data (exactly like the script)
       const unlockData = ethers.AbiCoder.defaultAbiCoder().encode(
         ['bytes', 'bytes[]'],
-        [actions, allParams]
+        [actions, params0]
       );
 
       // Execute transaction
@@ -172,6 +210,17 @@ export function useLiquidity() {
       
       toast('Adding liquidity... Please confirm the transaction', { icon: '💧' });
       const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+      
+      console.log('Executing modifyLiquidities with:');
+      console.log('- Position Manager:', CONTRACTS.POSITION_MANAGER);
+      console.log('- Currency0:', currency0);
+      console.log('- Currency1:', currency1);
+      console.log('- Hook:', CONTRACTS.REFERRAL_HOOK);
+      console.log('- User Address:', address);
+      console.log('- Tick Range:', tickLower, 'to', tickUpper);
+      console.log('- Amount0Max:', ethers.formatEther(amount0Max));
+      console.log('- Amount1Max:', ethers.formatEther(amount1Max));
+      
       const tx = await positionManager.modifyLiquidities(unlockData, deadline);
       
       toast('Transaction submitted, waiting for confirmation...', { icon: '⏳' });
@@ -200,7 +249,7 @@ export function useLiquidity() {
     } finally {
       setIsLoading(false);
     }
-  }, [isConnected, address, getProvider, setupPermit2Approvals]);
+  }, [address, isConnected, getProvider, setupPermit2Approvals]);
 
   const getTokenBalance = useCallback(async (tokenAddress: string) => {
     if (!isConnected || !address) return '0';
