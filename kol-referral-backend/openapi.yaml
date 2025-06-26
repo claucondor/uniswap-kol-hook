@@ -1,0 +1,1196 @@
+openapi: 3.0.3
+info:
+  title: KOL Referral System Backend API
+  description: |
+    Backend API for the KOL (Key Opinion Leader) Referral System.
+    
+    This comprehensive API provides endpoints for:
+    - 💰 **Faucet** - Distribute test tokens (KOLTEST1/KOLTEST2)
+    - 👥 **Referral System** - KOL registration and user referrals
+    - 🏆 **Leaderboard** - TVL tracking and ranking system
+    - 🏊 **Pool Management** - Create and manage Uniswap V4 pools
+    - 💧 **Liquidity Operations** - Add/remove liquidity with referral tracking
+    - 🔍 **Health Monitoring** - System status and diagnostics
+    
+    Built on Base mainnet using Hono framework with Uniswap V4 integration.
+  version: 2.0.0
+  contact:
+    name: KOL Referral System Team
+    email: dev@kol-referral.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://api.kol-referral.com
+    description: Production server
+
+paths:
+  /:
+    get:
+      summary: API Overview
+      description: Root endpoint with API overview and available services
+      tags:
+        - System
+      responses:
+        '200':
+          description: API overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiOverview'
+
+  /api/health:
+    get:
+      summary: System Health Check
+      description: Comprehensive health check for all services
+      tags:
+        - System
+      responses:
+        '200':
+          description: All services healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Some services degraded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # FAUCET ENDPOINTS
+  /api/faucet:
+    post:
+      summary: Request Test Tokens
+      description: |
+        Request KOLTEST1 and KOLTEST2 tokens from the faucet.
+        
+        **Rate Limiting:** 1 request per address per 24 hours
+        **Distribution:** 100 KOLTEST1 + 100 KOLTEST2 tokens
+      tags:
+        - Faucet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaucetRequest'
+      responses:
+        '200':
+          description: Tokens sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaucetResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimit'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/faucet/health:
+    get:
+      summary: Faucet Health Check
+      tags:
+        - Faucet
+        - System
+      responses:
+        '200':
+          description: Faucet service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealth'
+
+  # REFERRAL ENDPOINTS
+  /api/referral/kol/register:
+    post:
+      summary: Register as KOL
+      description: Register as a Key Opinion Leader and mint referral NFT
+      tags:
+        - Referral
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KolRegisterRequest'
+      responses:
+        '201':
+          description: KOL registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KolRegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/referral/user/register:
+    post:
+      summary: Register User with Referral
+      description: Register a user with a KOL referral code
+      tags:
+        - Referral
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReferralRequest'
+      responses:
+        '201':
+          description: User registered with referral
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReferralResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/referral/code/{code}:
+    get:
+      summary: Get Referral Code Info
+      description: Get information about a specific referral code
+      tags:
+        - Referral
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+                    type: string
+          example: "KOL123"
+      responses:
+        '200':
+          description: Referral code info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferralCodeInfo'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/referral/user/{address}:
+    get:
+      summary: Get User Referral Info
+      description: Get referral information for a user address
+      tags:
+        - Referral
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+                    type: string
+            pattern: '^0x[a-fA-F0-9]{40}$'
+      responses:
+        '200':
+          description: User referral info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReferralInfo'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/referral/health:
+    get:
+      summary: Referral Service Health
+      tags:
+        - Referral
+        - System
+      responses:
+        '200':
+          description: Referral service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealth'
+
+  # LEADERBOARD ENDPOINTS
+  /api/leaderboard:
+    get:
+      summary: Get Current Leaderboard
+      description: Get the current TVL leaderboard rankings
+      tags:
+        - Leaderboard
+      responses:
+        '200':
+          description: Current leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardResponse'
+
+  /api/leaderboard/epoch:
+    get:
+      summary: Get Current Epoch
+      description: Get current epoch information
+      tags:
+        - Leaderboard
+      responses:
+        '200':
+          description: Current epoch info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EpochInfo'
+
+  /api/leaderboard/epoch/{number}:
+    get:
+      summary: Get Specific Epoch Leaderboard
+      description: Get leaderboard for a specific epoch
+      tags:
+        - Leaderboard
+      parameters:
+        - name: number
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Epoch leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/leaderboard/kol/{address}/ranking:
+    get:
+      summary: Get KOL Ranking
+      description: Get specific KOL's ranking and stats
+      tags:
+        - Leaderboard
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+                    type: string
+            pattern: '^0x[a-fA-F0-9]{40}$'
+      responses:
+        '200':
+          description: KOL ranking info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KolRanking'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/leaderboard/health:
+    get:
+      summary: Leaderboard Service Health
+      tags:
+        - Leaderboard
+        - System
+      responses:
+        '200':
+          description: Leaderboard service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealth'
+
+  # POOL ENDPOINTS
+  /api/pool/create:
+    post:
+      summary: Create Pool with Hook
+      description: Create a new Uniswap V4 pool with custom hook
+      tags:
+        - Pool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolCreateRequest'
+      responses:
+        '201':
+          description: Pool created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolCreateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/pool/{poolId}/info:
+    get:
+      summary: Get Pool Information
+      description: Get detailed information about a specific pool
+      tags:
+        - Pool
+      parameters:
+        - name: poolId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pool information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolInfo'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/pool/estimate-gas:
+    post:
+      summary: Estimate Pool Creation Gas
+      description: Estimate gas costs for pool creation
+      tags:
+        - Pool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolEstimateRequest'
+      responses:
+        '200':
+          description: Gas estimation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasEstimate'
+
+  /api/pool/simulate:
+    post:
+      summary: Simulate Pool Creation
+      description: Simulate pool creation without executing transaction
+      tags:
+        - Pool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolEstimateRequest'
+      responses:
+        '200':
+          description: Simulation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolSimulation'
+
+  /api/pool/health:
+    get:
+      summary: Pool Service Health
+      tags:
+        - Pool
+        - System
+      responses:
+        '200':
+          description: Pool service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealth'
+
+  # LIQUIDITY ENDPOINTS
+  /api/liquidity/add:
+    post:
+      summary: Add Liquidity
+      description: Add liquidity to a pool with optional referral tracking
+      tags:
+        - Liquidity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiquidityAddRequest'
+      responses:
+        '201':
+          description: Liquidity added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiquidityAddResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/liquidity/remove:
+    post:
+      summary: Remove Liquidity
+      description: Remove liquidity from a pool position
+      tags:
+        - Liquidity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiquidityRemoveRequest'
+      responses:
+        '200':
+          description: Liquidity removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiquidityRemoveResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/liquidity/user/{userAddress}:
+    get:
+      summary: Get User Positions
+      description: Get all liquidity positions for a user
+      tags:
+        - Liquidity
+      parameters:
+        - name: userAddress
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^0x[a-fA-F0-9]{40}$'
+      responses:
+        '200':
+          description: User positions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPositions'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/liquidity/estimate-gas:
+    post:
+      summary: Estimate Liquidity Gas
+      description: Estimate gas costs for liquidity operations
+      tags:
+        - Liquidity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiquidityGasRequest'
+      responses:
+        '200':
+          description: Gas estimation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GasEstimate'
+
+  /api/liquidity/simulate:
+    post:
+      summary: Simulate Liquidity Addition
+      description: Simulate liquidity addition without executing
+      tags:
+        - Liquidity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiquiditySimulateRequest'
+      responses:
+        '200':
+          description: Simulation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiquiditySimulation'
+
+  /api/liquidity/health:
+    get:
+      summary: Liquidity Service Health
+      tags:
+        - Liquidity
+        - System
+      responses:
+        '200':
+          description: Liquidity service healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceHealth'
+
+components:
+  schemas:
+    # COMMON SCHEMAS
+    Address:
+      type: string
+      pattern: '^0x[a-fA-F0-9]{40}$'
+      example: "0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6"
+
+    TxHash:
+      type: string
+      pattern: '^0x[a-fA-F0-9]{64}$'
+      example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    # SYSTEM SCHEMAS
+    ApiOverview:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "KOL Referral Backend"
+        version:
+          type: string
+          example: "2.0.0"
+        description:
+          type: string
+        endpoints:
+          type: object
+        status:
+          type: string
+          example: "running"
+        framework:
+          type: string
+          example: "Hono ⚡"
+        blockchain:
+          type: string
+          example: "Base Network"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: object
+        contracts:
+          type: object
+
+    ServiceHealth:
+      type: object
+      properties:
+        status:
+          type: string
+        endpoints:
+          type: array
+          items:
+            type: string
+
+    # FAUCET SCHEMAS
+    FaucetRequest:
+      type: object
+      properties:
+        userAddress:
+          $ref: '#/components/schemas/Address'
+      required:
+        - userAddress
+
+    FaucetResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                userAddress:
+                  $ref: '#/components/schemas/Address'
+                txHash1:
+                  $ref: '#/components/schemas/TxHash'
+                txHash2:
+                  $ref: '#/components/schemas/TxHash'
+                amounts:
+                  type: object
+                  properties:
+                    koltest1:
+                      type: string
+                    koltest2:
+                      type: string
+
+    # REFERRAL SCHEMAS
+    KolRegisterRequest:
+      type: object
+      properties:
+        kolAddress:
+          $ref: '#/components/schemas/Address'
+        referralCode:
+          type: string
+          minLength: 3
+          maxLength: 20
+          example: "KOL123"
+      required:
+        - kolAddress
+        - referralCode
+
+    KolRegisterResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                kolAddress:
+                  $ref: '#/components/schemas/Address'
+                referralCode:
+                  type: string
+                nftTokenId:
+                  type: string
+                transactionHash:
+                  $ref: '#/components/schemas/TxHash'
+
+    UserReferralRequest:
+      type: object
+      properties:
+        userAddress:
+          $ref: '#/components/schemas/Address'
+        referralCode:
+          type: string
+          example: "KOL123"
+      required:
+        - userAddress
+        - referralCode
+
+    UserReferralResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                userAddress:
+                  $ref: '#/components/schemas/Address'
+                referralCode:
+                  type: string
+                kolAddress:
+                  $ref: '#/components/schemas/Address'
+                transactionHash:
+                  $ref: '#/components/schemas/TxHash'
+
+    ReferralCodeInfo:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                referralCode:
+                  type: string
+                kolAddress:
+                  $ref: '#/components/schemas/Address'
+                isActive:
+                  type: boolean
+                totalReferrals:
+                  type: integer
+                totalTvl:
+                  type: string
+
+    UserReferralInfo:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                userAddress:
+                  $ref: '#/components/schemas/Address'
+                referralCode:
+                  type: string
+                kolAddress:
+                  $ref: '#/components/schemas/Address'
+                registrationDate:
+                  type: string
+                  format: date-time
+
+    # LEADERBOARD SCHEMAS
+    LeaderboardResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                epoch:
+                  type: integer
+                rankings:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/KolRanking'
+
+    EpochInfo:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                currentEpoch:
+                  type: integer
+                startTime:
+                  type: string
+                  format: date-time
+                endTime:
+                  type: string
+                  format: date-time
+                isActive:
+                  type: boolean
+
+    KolRanking:
+      type: object
+      properties:
+        rank:
+          type: integer
+        kolAddress:
+          $ref: '#/components/schemas/Address'
+        referralCode:
+          type: string
+        totalTvl:
+          type: string
+        referralCount:
+          type: integer
+        points:
+          type: string
+
+    # POOL SCHEMAS
+    PoolCreateRequest:
+      type: object
+      properties:
+        token0:
+          $ref: '#/components/schemas/Address'
+        token1:
+          $ref: '#/components/schemas/Address'
+        fee:
+          type: integer
+          minimum: 1
+          example: 3000
+        tickSpacing:
+          type: integer
+          example: 60
+        hookAddress:
+          $ref: '#/components/schemas/Address'
+        initialPriceX96:
+          type: string
+          example: "79228162514264337593543950336"
+        userAddress:
+          $ref: '#/components/schemas/Address'
+      required:
+        - token0
+        - token1
+        - fee
+        - tickSpacing
+        - hookAddress
+        - userAddress
+
+    PoolCreateResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                poolId:
+                  type: string
+                currency0:
+                  $ref: '#/components/schemas/Address'
+                currency1:
+                  $ref: '#/components/schemas/Address'
+                fee:
+                  type: integer
+                tickSpacing:
+                  type: integer
+                hookAddress:
+                  $ref: '#/components/schemas/Address'
+                transactionHash:
+                  $ref: '#/components/schemas/TxHash'
+                blockNumber:
+                  type: integer
+
+    PoolEstimateRequest:
+      type: object
+      properties:
+        token0:
+          $ref: '#/components/schemas/Address'
+        token1:
+          $ref: '#/components/schemas/Address'
+        fee:
+          type: integer
+        tickSpacing:
+          type: integer
+        hookAddress:
+          $ref: '#/components/schemas/Address'
+        initialPriceX96:
+          type: string
+      required:
+        - token0
+        - token1
+        - fee
+        - tickSpacing
+        - hookAddress
+
+    PoolInfo:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                poolId:
+                  type: string
+                sqrtPriceX96:
+                  type: string
+                tick:
+                  type: string
+                protocolFee:
+                  type: integer
+                lpFee:
+                  type: integer
+                liquidity:
+                  type: string
+                isInitialized:
+                  type: boolean
+
+    PoolSimulation:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                wouldSucceed:
+                  type: boolean
+                expectedPoolId:
+                  type: string
+                currency0:
+                  $ref: '#/components/schemas/Address'
+                currency1:
+                  $ref: '#/components/schemas/Address'
+                simulation:
+                  type: boolean
+                  example: true
+
+    # LIQUIDITY SCHEMAS
+    LiquidityAddRequest:
+      type: object
+      properties:
+        poolId:
+          type: string
+        token0:
+          $ref: '#/components/schemas/Address'
+        token1:
+          $ref: '#/components/schemas/Address'
+        fee:
+          type: integer
+        tickSpacing:
+          type: integer
+        hookAddress:
+          $ref: '#/components/schemas/Address'
+        tickLower:
+          type: integer
+        tickUpper:
+          type: integer
+        amount0Desired:
+          type: string
+        amount1Desired:
+          type: string
+        amount0Min:
+          type: string
+        amount1Min:
+          type: string
+        userAddress:
+          $ref: '#/components/schemas/Address'
+        referralCode:
+          type: string
+      required:
+        - poolId
+        - token0
+        - token1
+        - fee
+        - tickSpacing
+        - hookAddress
+        - tickLower
+        - tickUpper
+        - amount0Desired
+        - amount1Desired
+        - userAddress
+
+    LiquidityAddResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                tokenId:
+                  type: string
+                poolId:
+                  type: string
+                amount0:
+                  type: string
+                amount1:
+                  type: string
+                userAddress:
+                  $ref: '#/components/schemas/Address'
+                referralCode:
+                  type: string
+                transactionHash:
+                  $ref: '#/components/schemas/TxHash'
+
+    LiquidityRemoveRequest:
+      type: object
+      properties:
+        poolId:
+          type: string
+        token0:
+          $ref: '#/components/schemas/Address'
+        token1:
+          $ref: '#/components/schemas/Address'
+        fee:
+          type: integer
+        tickSpacing:
+          type: integer
+        hookAddress:
+          $ref: '#/components/schemas/Address'
+        tickLower:
+          type: integer
+        tickUpper:
+          type: integer
+        liquidity:
+          type: string
+        amount0Min:
+          type: string
+        amount1Min:
+          type: string
+        userAddress:
+          $ref: '#/components/schemas/Address'
+      required:
+        - poolId
+        - userAddress
+        - liquidity
+
+    LiquidityRemoveResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                poolId:
+                  type: string
+                liquidity:
+                  type: string
+                userAddress:
+                  $ref: '#/components/schemas/Address'
+                transactionHash:
+                  $ref: '#/components/schemas/TxHash'
+
+    UserPositions:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                userAddress:
+                  $ref: '#/components/schemas/Address'
+                positions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tokenId:
+                        type: string
+                      poolId:
+                        type: string
+                      tickLower:
+                        type: integer
+                      tickUpper:
+                        type: integer
+                      liquidity:
+                        type: string
+                      token0:
+                        $ref: '#/components/schemas/Address'
+                      token1:
+                        $ref: '#/components/schemas/Address'
+                totalPositions:
+                  type: integer
+
+    LiquidityGasRequest:
+      type: object
+      properties:
+        operation:
+          type: string
+          enum: [add, remove]
+        poolId:
+          type: string
+        token0:
+          $ref: '#/components/schemas/Address'
+        token1:
+          $ref: '#/components/schemas/Address'
+        amount0:
+          type: string
+        amount1:
+          type: string
+        userAddress:
+          $ref: '#/components/schemas/Address'
+      required:
+        - operation
+        - poolId
+        - userAddress
+
+    LiquiditySimulateRequest:
+      type: object
+      properties:
+        poolId:
+          type: string
+        token0:
+          $ref: '#/components/schemas/Address'
+        token1:
+          $ref: '#/components/schemas/Address'
+        amount0Desired:
+          type: string
+        amount1Desired:
+          type: string
+        tickLower:
+          type: integer
+        tickUpper:
+          type: integer
+        userAddress:
+          $ref: '#/components/schemas/Address'
+      required:
+        - poolId
+        - userAddress
+        - amount0Desired
+        - amount1Desired
+
+    LiquiditySimulation:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                wouldSucceed:
+                  type: boolean
+                expectedLiquidity:
+                  type: string
+                amount0:
+                  type: string
+                amount1:
+                  type: string
+                simulation:
+                  type: boolean
+                  example: true
+
+    # GAS ESTIMATION
+    GasEstimate:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data:
+              type: object
+              properties:
+                gasLimit:
+                  type: string
+                gasPrice:
+                  type: string
+                estimatedCost:
+                  type: string
+                operation:
+                  type: string
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    RateLimit:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: System
+    description: System health and overview endpoints
+  - name: Faucet
+    description: 💰 Test token distribution
+  - name: Referral
+    description: 👥 KOL registration and user referrals
+  - name: Leaderboard
+    description: 🏆 TVL tracking and rankings
+  - name: Pool
+    description: 🏊 Uniswap V4 pool management
+  - name: Liquidity
+    description: 💧 Liquidity operations with referral tracking 

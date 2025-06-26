@@ -1,0 +1,43 @@
+[
+    {
+        "inputs": [],
+        "name": "getTopKOLs",
+        "outputs": [
+            {
+                "name": "",
+                "type": "tuple[]",
+                "components": [
+                    { "name": "kol", "type": "address" },
+                    { "name": "totalTVL", "type": "uint256" },
+                    { "name": "uniqueUsers", "type": "uint256" }
+                ]
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "currentEpoch",
+        "outputs": [{ "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "name": "epoch", "type": "uint256" }],
+        "name": "getEpochLeaderboard",
+        "outputs": [
+            {
+                "name": "",
+                "type": "tuple[]",
+                "components": [
+                    { "name": "kol", "type": "address" },
+                    { "name": "totalTVL", "type": "uint256" },
+                    { "name": "uniqueUsers", "type": "uint256" }
+                ]
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

@@ -1,0 +1,57 @@
+{
+  "transactions": [
+    {
+      "hash": "0xdc5aa1adcdb3d5d30c67a90179f7333f54aab6f786635651be2de11089be2225",
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0xacd17cefe9f105aaa839d802cad0b9bee1f80f71",
+      "function": "grantRole(bytes32,address)",
+      "arguments": [
+        "0x73e573f9566d61418a34d5de3ff49360f9c51fec37f7486551670290f6285dab",
+        "0x953A5Dd9072a32167D10966B360B68ec33db4500"
+      ],
+      "transaction": {
+        "from": "0x2f2b1a3648c58cf224aa69a4b0bdc942f000045f",
+        "to": "0xacd17cefe9f105aaa839d802cad0b9bee1f80f71",
+        "gas": "0x1147e",
+        "value": "0x0",
+        "input": "0x2f2ff15d73e573f9566d61418a34d5de3ff49360f9c51fec37f7486551670290f6285dab000000000000000000000000953a5dd9072a32167d10966b360b68ec33db4500",
+        "nonce": "0x2dd",
+        "chainId": "0x2105"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    },
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x4839d26aee01ffcc3bb432cbc8024a9a388873ba",
+      "function": "grantRole(bytes32,address)",
+      "arguments": [
+        "0x6c7da319c9435c5de434cd96129af937695e037ff325442da45308f61d803698",
+        "0x953A5Dd9072a32167D10966B360B68ec33db4500"
+      ],
+      "transaction": {
+        "from": "0x2f2b1a3648c58cf224aa69a4b0bdc942f000045f",
+        "to": "0x4839d26aee01ffcc3bb432cbc8024a9a388873ba",
+        "gas": "0x113e1",
+        "value": "0x0",
+        "input": "0x2f2ff15d6c7da319c9435c5de434cd96129af937695e037ff325442da45308f61d803698000000000000000000000000953a5dd9072a32167d10966b360b68ec33db4500",
+        "nonce": "0x2de",
+        "chainId": "0x2105"
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0xdc5aa1adcdb3d5d30c67a90179f7333f54aab6f786635651be2de11089be2225"
+  ],
+  "returns": {},
+  "timestamp": 1750805333,
+  "chain": 8453,
+  "commit": null
+}
