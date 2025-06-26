@@ -2,7 +2,7 @@
 
 A complete referral system for Key Opinion Leaders (KOLs) integrated with Uniswap V4 on Base mainnet. Allows KOLs to register, get referral codes, and earn rewards based on Total Value Locked (TVL) generated through their referrals.
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -16,7 +16,7 @@ A complete referral system for Key Opinion Leaders (KOLs) integrated with Uniswa
                                 └── Test Tokens
 ```
 
-## 🚀 Deployed Contracts (Base Mainnet)
+## Deployed Contracts (Base Mainnet)
 
 | Contract | Address | Description |
 |----------|---------|-------------|
@@ -35,7 +35,7 @@ A complete referral system for Key Opinion Leaders (KOLs) integrated with Uniswa
 ### Active Pool ID
 - **KOLTEST1/KOLTEST2**: `0x1c580e16c547b863f9bf433ef6d6fe98a533f71d8882b2fb7eca0c3ad7d8e296`
 
-## 🔧 How to Test the System
+## How to Test the System
 
 ### 1. Get Test Tokens
 
@@ -80,7 +80,7 @@ curl -X POST "http://localhost:8080/api/referral/user/register" \
 4. Confirm transaction
 5. See automatic leaderboard update
 
-## 🚀 Installation and Setup
+## Installation and Setup
 
 ### Backend
 
@@ -125,9 +125,9 @@ cp .env.example .env
 forge test
 ```
 
-## 📊 Current Features
+## Current Features
 
-### ✅ Implemented
+### Implemented
 
 - **KOL registration** with unique codes
 - **Automatic referral system**
@@ -138,14 +138,14 @@ forge test
 - **Complete frontend** with MetaMask
 - **REST API backend** with real data
 
-### 🎯 TVL Calculation
+### TVL Calculation
 
 Currently TVL is calculated at **token level**:
 - **KOLTEST1**: 1 token = 1 TVL unit
 - **KOLTEST2**: 1 token = 1 TVL unit
 - **Total TVL** = Sum of both tokens
 
-## 🔮 Future Roadmap
+## Future Roadmap
 
 ### Phase 2: Oracle Integration
 - Integration with **Chainlink** or **Pyth** for USD prices
@@ -164,14 +164,14 @@ Currently TVL is calculated at **token level**:
 - **Referral tree** visualization
 - **Historical performance** tracking
 
-## 🔐 Security
+## Security
 
 - Locally audited contracts
 - **Access control** with roles
 - **Reentrancy protection** in hooks
 - **Input validation** in all functions
 
-## 🧪 Testing
+## Testing
 
 ### Contracts
 ```bash
@@ -191,13 +191,13 @@ npm test
 npm run test:e2e
 ```
 
-## 📚 Additional Documentation
+## Additional Documentation
 
 - [Smart Contracts README](./kol-referral-system/README.md)
 - [Backend API README](./kol-referral-backend/README.md)
 - [Frontend README](./kol-referral-frontend/README.md)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the project
 2. Create feature branch (`git checkout -b feature/AmazingFeature`)
@@ -205,11 +205,11 @@ npm run test:e2e
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-## 📝 License
+## License
 
 This project is under the MIT license. See `LICENSE` for more details.
 
-## 🆘 Support
+## Support
 
 For technical support or questions:
 - Create an [Issue](https://github.com/your-repo/issues)

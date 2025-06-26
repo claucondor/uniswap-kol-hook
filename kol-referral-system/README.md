@@ -2,7 +2,7 @@
 
 Complete set of smart contracts for the KOL referral system with Uniswap V4 integration on Base mainnet.
 
-## 📋 Contract Overview
+## Contract Overview
 
 ### Core Contracts
 
@@ -19,7 +19,7 @@ Complete set of smart contracts for the KOL referral system with Uniswap V4 inte
 | **KOL Test Token 1** | KOLTEST1 | `0x52bc5Caf2520c31a7669A7FAaD0F8E37aF53c5D3` | 18 |
 | **KOL Test Token 2** | KOLTEST2 | `0xFe3Ad79f52CD53bf8e948A32936d7d5EB53f00a7` | 18 |
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────┐
