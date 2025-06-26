@@ -2,15 +2,15 @@
 
 REST API for the KOL referral system with real-time integration to Base mainnet smart contracts.
 
-## 🚀 Features
+## Features
 
-- ✅ **Real-time blockchain integration** with Base mainnet
-- ✅ **KOL and user registration** via smart contracts
-- ✅ **Dynamic leaderboard** with live TVL data
-- ✅ **Integrated token faucet** for testing
-- ✅ **CORS configuration** for frontend integration
-- ✅ **Error handling** and input validation
-- ✅ **Automatic balance verification** before transactions
+- **Real-time blockchain integration** with Base mainnet
+- **KOL and user registration** via smart contracts
+- **Dynamic leaderboard** with live TVL data
+- **Integrated token faucet** for testing
+- **CORS configuration** for frontend integration
+- **Error handling** and input validation
+- **Automatic balance verification** before transactions
 
 ## 🏗️ Architecture
 

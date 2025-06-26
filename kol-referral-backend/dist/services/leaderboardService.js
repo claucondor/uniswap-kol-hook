@@ -10,20 +10,90 @@ exports.getKOLRanking = getKOLRanking;
 const ethers_1 = require("ethers");
 const config_1 = require("../config");
 const blockchain_1 = require("./blockchain");
-// Contract ABI - Import from the existing ABI file
+// Contract ABIs
 const TVLLeaderboard_json_1 = __importDefault(require("../abis/TVLLeaderboard.json"));
+const ReferralHook_json_1 = __importDefault(require("../abis/ReferralHook.json"));
 // Get TVL Leaderboard contract instance
 function getTVLLeaderboardContract() {
     const provider = (0, blockchain_1.getProvider)();
     return new ethers_1.ethers.Contract(config_1.config.contracts.tvlLeaderboard, TVLLeaderboard_json_1.default, provider);
 }
+// Get ReferralHook contract instance
+function getReferralHookContract() {
+    const provider = (0, blockchain_1.getProvider)();
+    return new ethers_1.ethers.Contract(config_1.config.contracts.referralHookV2, ReferralHook_json_1.default, provider);
+}
+// Get real KOL data from ReferralHook contract
+async function getRealKOLData() {
+    try {
+        const hookContract = getReferralHookContract();
+        // Known KOL addresses from our system
+        const knownKOLs = [
+            '0xC166C00d5696afb27Cf07671a85b78a589a20A5c', // Main KOL from deployment
+            // Add more KOL addresses as they register
+        ];
+        const kolRankings = [];
+        for (let i = 0; i < knownKOLs.length; i++) {
+            const kolAddress = knownKOLs[i];
+            try {
+                // Get KOL stats from ReferralHook (same as AnalyzeTVLCalculation.s.sol)
+                const [totalTVL, uniqueUsers] = await hookContract.getKOLStats(kolAddress);
+                // Convert to BigInt for ethers v6 compatibility
+                const tvlBigInt = BigInt(totalTVL.toString());
+                const usersBigInt = BigInt(uniqueUsers.toString());
+                // Only include KOLs with actual TVL
+                if (tvlBigInt > 0n) {
+                    kolRankings.push({
+                        rank: kolRankings.length + 1,
+                        kolAddress: kolAddress,
+                        referralCode: `KOL${i + 1}`,
+                        totalTvl: tvlBigInt.toString(),
+                        referralCount: Number(usersBigInt),
+                        points: tvlBigInt.toString()
+                    });
+                }
+            }
+            catch (kolError) {
+                console.log(`Could not get stats for KOL ${kolAddress}:`, kolError.message);
+            }
+        }
+        // Sort by TVL (descending) - use string comparison for large numbers
+        kolRankings.sort((a, b) => {
+            const aTvl = parseFloat(a.totalTvl);
+            const bTvl = parseFloat(b.totalTvl);
+            return bTvl - aTvl;
+        });
+        // Update ranks after sorting
+        kolRankings.forEach((kol, index) => {
+            kol.rank = index + 1;
+        });
+        return kolRankings;
+    }
+    catch (error) {
+        console.error('Error getting real KOL data from ReferralHook:', error);
+        return [];
+    }
+}
 // Get current leaderboard (top KOLs)
 async function getLeaderboard() {
     try {
         console.log('Getting current leaderboard...');
+        // First try to get real data from ReferralHook
+        const realKOLData = await getRealKOLData();
+        if (realKOLData.length > 0) {
+            console.log(`Found ${realKOLData.length} KOLs with real TVL data`);
+            return {
+                success: true,
+                message: 'Real leaderboard data retrieved from ReferralHook',
+                data: {
+                    epoch: 1,
+                    rankings: realKOLData
+                }
+            };
+        }
+        // Fallback: Try TVLLeaderboard contract
         const leaderboardContract = getTVLLeaderboardContract();
-        console.log('Fetching current leaderboard from contract...');
-        // Try to get data from contract, but handle if no data exists yet
+        console.log('Fetching current leaderboard from TVLLeaderboard contract...');
         try {
             const topKOLs = await leaderboardContract.getTopKOLs();
             // Format the data if we have any
@@ -37,7 +107,7 @@ async function getLeaderboard() {
             }));
             return {
                 success: true,
-                message: 'Leaderboard retrieved successfully',
+                message: 'Leaderboard retrieved from TVLLeaderboard contract',
                 data: {
                     epoch: 1,
                     rankings: formattedKOLs
@@ -45,11 +115,11 @@ async function getLeaderboard() {
             };
         }
         catch (contractError) {
-            // If contract call fails (no data, not initialized, etc.), return empty but valid response
-            console.log('Contract call failed, returning empty leaderboard:', contractError.message);
+            console.log('TVLLeaderboard contract call failed:', contractError.message);
+            // Return empty data - let frontend handle it gracefully
             return {
                 success: true,
-                message: 'No leaderboard data available yet',
+                message: 'No leaderboard data available yet - waiting for KOL registrations and liquidity',
                 data: {
                     epoch: 1,
                     rankings: []

@@ -37,7 +37,7 @@ Complete set of smart contracts for the KOL referral system with Uniswap V4 inte
 └─────────────────────┘
 ```
 
-## 🔧 Core Functionality
+## Core Functionality
 
 ### 1. ReferralRegistry
 
@@ -119,7 +119,7 @@ function afterModifyPosition(
 ) external returns (bytes4)
 ```
 
-## 🔄 Operation Flow
+## Operation Flow
 
 ### 1. KOL Registration
 ```mermaid
@@ -162,7 +162,7 @@ sequenceDiagram
     TL->>TL: Update rankings
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Local Testing
 
@@ -207,7 +207,7 @@ forge coverage --report debug
    - Position tracking
    - Event emissions
 
-## 🚀 Deployment
+## Deployment
 
 ### Local Deployment
 
@@ -244,7 +244,7 @@ POSITION_MANAGER=0x7C5f5A4bBd8fD63184577525326123B519429bDc
 | `AddLiquidity.s.sol` | Add initial liquidity |
 | `TestSystem.s.sol` | End-to-end system testing |
 
-## 🔐 Security Features
+## Security Features
 
 ### Access Control
 - **OnlyRegistry**: Only ReferralRegistry can update TVL
@@ -271,7 +271,7 @@ function updateTVL(address _kol, uint256 _newTVL) external onlyHook {
 }
 ```
 
-## 📊 Gas Optimization
+## Gas Optimization
 
 ### Efficient Storage
 - Packed structs for gas savings
@@ -292,7 +292,7 @@ function afterModifyPosition(/*...*/) external override returns (bytes4) {
 }
 ```
 
-## 🔮 Future Roadmap
+## Future Roadmap
 
 ### Phase 2: Advanced Features
 - **Multi-token support**: Beyond test tokens
@@ -311,7 +311,7 @@ function afterModifyPosition(/*...*/) external override returns (bytes4) {
 - **Cross-chain tracking**: Multi-chain referrals
 - **NFT rewards**: Unique achievement badges
 
-## 🤝 Contributing
+## Contributing
 
 ### Development Setup
 ```bash
@@ -339,7 +339,7 @@ git push origin feature/new-feature
 - Gas optimization where possible
 - Complete natspec documentation
 
-## 📝 License
+## License
 
 MIT License - see LICENSE file for details.
 
