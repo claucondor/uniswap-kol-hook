@@ -1,8 +1,8 @@
 # KOL Referral System MVP
 
-Un sistema completo de referidos para Key Opinion Leaders (KOLs) integrado con Uniswap V4 en Base mainnet. Permite a los KOLs registrarse, obtener códigos de referidos, y ganar rewards por el Total Value Locked (TVL) generado a través de sus referidos.
+A complete referral system for Key Opinion Leaders (KOLs) integrated with Uniswap V4 on Base mainnet. Allows KOLs to register, get referral codes, and earn rewards based on Total Value Locked (TVL) generated through their referrals.
 
-## 🏗️ Arquitectura del Sistema
+## 🏗️ System Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -16,71 +16,71 @@ Un sistema completo de referidos para Key Opinion Leaders (KOLs) integrado con U
                                 └── Test Tokens
 ```
 
-## 🚀 Contratos Deployados (Base Mainnet)
+## 🚀 Deployed Contracts (Base Mainnet)
 
-| Contrato | Dirección | Descripción |
-|----------|-----------|-------------|
-| **ReferralRegistry** | `0x9E895E8DA3fF34C7B73D9Ad94d9E562c2D4Dc01e` | Registro de KOLs y usuarios |
-| **TVLLeaderboard** | `0xBf133a716f07FF6a9C93e60EF3781EA491390688` | Sistema de ranking y rewards |
-| **ReferralHook** | `0x65E6c7be675a3169F90Bb074F19f616772498500` | Hook de Uniswap V4 |
-| **KOLTEST1** | `0x52bc5Caf2520c31a7669A7FAaD0F8E37aF53c5D3` | Token de prueba (18 decimales) |
-| **KOLTEST2** | `0xFe3Ad79f52CD53bf8e948A32936d7d5EB53f00a7` | Token de prueba (18 decimales) |
+| Contract | Address | Description |
+|----------|---------|-------------|
+| **ReferralRegistry** | `0x9E895E8DA3fF34C7B73D9Ad94d9E562c2D4Dc01e` | KOL and user registration |
+| **TVLLeaderboard** | `0xBf133a716f07FF6a9C93e60EF3781EA491390688` | Ranking and rewards system |
+| **ReferralHook** | `0x65E6c7be675a3169F90Bb074F19f616772498500` | Uniswap V4 hook |
+| **KOLTEST1** | `0x52bc5Caf2520c31a7669A7FAaD0F8E37aF53c5D3` | Test token (18 decimals) |
+| **KOLTEST2** | `0xFe3Ad79f52CD53bf8e948A32936d7d5EB53f00a7` | Test token (18 decimals) |
 
 ### Uniswap V4 (Base)
-| Contrato | Dirección |
-|----------|-----------|
+| Contract | Address |
+|----------|---------|
 | **Pool Manager** | `0x498581fF718922c3f8e6A244956aF099B2652b2b` |
 | **Position Manager** | `0x7C5f5A4bBd8fD63184577525326123B519429bDc` |
 
-### Pool ID Activo
+### Active Pool ID
 - **KOLTEST1/KOLTEST2**: `0x1c580e16c547b863f9bf433ef6d6fe98a533f71d8882b2fb7eca0c3ad7d8e296`
 
-## 🔧 Cómo Probar el Sistema
+## 🔧 How to Test the System
 
-### 1. Obtener Tokens de Prueba
+### 1. Get Test Tokens
 
 ```bash
-# Usar el faucet integrado del sistema
+# Use the integrated faucet
 curl -X POST "http://localhost:8080/api/faucet" \
   -H "Content-Type: application/json" \
-  -d '{"walletAddress": "TU_WALLET_ADDRESS"}'
+  -d '{"walletAddress": "YOUR_WALLET_ADDRESS"}'
 ```
 
-O usar el frontend en la sección "Faucet" para obtener tokens automáticamente.
+Or use the frontend "Faucet" section to get tokens automatically.
 
-### 2. Registrarse como KOL
+### 2. Register as KOL
 
 ```bash
-# Registrar KOL
+# Register KOL
 curl -X POST "http://localhost:8080/api/referral/kol/register" \
   -H "Content-Type: application/json" \
   -d '{
-    "kolAddress": "TU_WALLET_ADDRESS",
-    "referralCode": "MI_CODIGO_UNICO"
+    "kolAddress": "YOUR_WALLET_ADDRESS",
+    "referralCode": "MY_UNIQUE_CODE"
   }'
 ```
 
-### 3. Registrar Usuario con Referido
+### 3. Register User with Referral
 
 ```bash
-# Registrar usuario
+# Register user
 curl -X POST "http://localhost:8080/api/referral/user/register" \
   -H "Content-Type: application/json" \
   -d '{
-    "userAddress": "WALLET_DEL_USUARIO",
-    "referralCode": "CODIGO_DEL_KOL"
+    "userAddress": "USER_WALLET_ADDRESS",
+    "referralCode": "KOL_CODE"
   }'
 ```
 
-### 4. Agregar Liquidez (Frontend)
+### 4. Add Liquidity (Frontend)
 
-1. Conectar wallet en el frontend
-2. Ir a la sección "Pools" → "Add Liquidity"
-3. Especificar cantidades de KOLTEST1 y KOLTEST2
-4. Confirmar transacción
-5. Ver actualización automática en el leaderboard
+1. Connect wallet in the frontend
+2. Go to "Pools" → "Add Liquidity" section
+3. Specify amounts of KOLTEST1 and KOLTEST2
+4. Confirm transaction
+5. See automatic leaderboard update
 
-## 🚀 Instalación y Ejecución
+## 🚀 Installation and Setup
 
 ### Backend
 
@@ -88,16 +88,16 @@ curl -X POST "http://localhost:8080/api/referral/user/register" \
 cd kol-referral-backend
 npm install
 cp .env.example .env
-# Configurar variables de entorno
+# Configure environment variables
 npm run dev
 ```
 
-**Variables de entorno requeridas:**
+**Required environment variables:**
 ```env
 PORT=8080
-PRIVATE_KEY=tu_private_key
+PRIVATE_KEY=your_private_key
 RPC_URL=https://mainnet.base.org
-BASESCAN_API_KEY=tu_api_key (opcional)
+BASESCAN_API_KEY=your_api_key (optional)
 ```
 
 ### Frontend
@@ -106,11 +106,11 @@ BASESCAN_API_KEY=tu_api_key (opcional)
 cd kol-referral-frontend
 npm install
 cp .env.example .env
-# Configurar URL del backend
+# Configure backend URL
 npm run dev
 ```
 
-**Variables de entorno:**
+**Environment variables:**
 ```env
 VITE_API_URL=http://localhost:8080
 ```
@@ -121,55 +121,55 @@ VITE_API_URL=http://localhost:8080
 cd kol-referral-system
 forge install
 cp .env.example .env
-# Configurar keys para deploy
+# Configure keys for deployment
 forge test
 ```
 
-## 📊 Funcionalidades Actuales
+## 📊 Current Features
 
-### ✅ Implementado
+### ✅ Implemented
 
-- **Registro de KOLs** con códigos únicos
-- **Sistema de referidos** automático
-- **Tracking de TVL** en tiempo real
-- **Leaderboard dinámico** con rankings
-- **Integración Uniswap V4** completa
-- **Faucet de tokens** para testing
-- **Frontend completo** con MetaMask
-- **Backend API REST** con datos reales
+- **KOL registration** with unique codes
+- **Automatic referral system**
+- **Real-time TVL tracking**
+- **Dynamic leaderboard** with rankings
+- **Complete Uniswap V4 integration**
+- **Token faucet** for testing
+- **Complete frontend** with MetaMask
+- **REST API backend** with real data
 
-### 🎯 Cálculo de TVL
+### 🎯 TVL Calculation
 
-Actualmente el TVL se calcula a **nivel de tokens**:
-- **KOLTEST1**: 1 token = 1 unidad de TVL
-- **KOLTEST2**: 1 token = 1 unidad de TVL
-- **TVL Total** = Suma de ambos tokens
+Currently TVL is calculated at **token level**:
+- **KOLTEST1**: 1 token = 1 TVL unit
+- **KOLTEST2**: 1 token = 1 TVL unit
+- **Total TVL** = Sum of both tokens
 
-## 🔮 Roadmap Futuro
+## 🔮 Future Roadmap
 
 ### Phase 2: Oracle Integration
-- Integración con **Chainlink** o **Pyth** para precios USD
-- Cálculo de TVL en **dólares reales**
-- Soporte para **múltiples pools** y tokens
+- Integration with **Chainlink** or **Pyth** for USD prices
+- **Real dollar TVL** calculation
+- Support for **multiple pools** and tokens
 
 ### Phase 3: Rewards System
-- **Distribución automática** de rewards
-- **Epochs** con duración configurable
-- **Diferentes tipos de rewards** (tokens, NFTs, etc.)
-- **Staking mechanism** para KOLs
+- **Automatic rewards** distribution
+- **Configurable epochs**
+- **Different reward types** (tokens, NFTs, etc.)
+- **Staking mechanism** for KOLs
 
 ### Phase 4: Analytics & Gamification
-- **Dashboard avanzado** con métricas detalladas
-- **Sistema de badges** y logros
-- **Referral trees** visualization
+- **Advanced dashboard** with detailed metrics
+- **Badge system** and achievements
+- **Referral tree** visualization
 - **Historical performance** tracking
 
-## 🔐 Seguridad
+## 🔐 Security
 
-- Contratos auditados localmente
-- **Access control** con roles
-- **Reentrancy protection** en hooks
-- **Input validation** en todas las funciones
+- Locally audited contracts
+- **Access control** with roles
+- **Reentrancy protection** in hooks
+- **Input validation** in all functions
 
 ## 🧪 Testing
 
@@ -187,34 +187,34 @@ npm test
 
 ### E2E Testing
 ```bash
-# Con frontend y backend corriendo
+# With frontend and backend running
 npm run test:e2e
 ```
 
-## 📚 Documentación Adicional
+## 📚 Additional Documentation
 
 - [Smart Contracts README](./kol-referral-system/README.md)
 - [Backend API README](./kol-referral-backend/README.md)
 - [Frontend README](./kol-referral-frontend/README.md)
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-1. Fork el proyecto
-2. Crear feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a branch (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
+1. Fork the project
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
 
-## 📝 Licencia
+## 📝 License
 
-Este proyecto está bajo la licencia MIT. Ver `LICENSE` para más detalles.
+This project is under the MIT license. See `LICENSE` for more details.
 
-## 🆘 Soporte
+## 🆘 Support
 
-Para soporte técnico o preguntas:
-- Crear un [Issue](https://github.com/tu-repo/issues)
-- Documentación: [Wiki](https://github.com/tu-repo/wiki)
+For technical support or questions:
+- Create an [Issue](https://github.com/your-repo/issues)
+- Documentation: [Wiki](https://github.com/your-repo/wiki)
 
 ---
 
-**Nota**: Este es un MVP para demostración. Para producción se recomienda auditoría completa de smart contracts y testing extensivo. 
+**Note**: This is an MVP for demonstration. For production, complete smart contract auditing and extensive testing is recommended. 

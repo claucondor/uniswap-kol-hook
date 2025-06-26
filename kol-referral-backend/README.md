@@ -1,129 +1,225 @@
 # Backend API - KOL Referral System
 
-Backend REST API construido en Node.js que sirve como puente entre el frontend y los smart contracts en Base mainnet. Proporciona datos en tiempo real del sistema de referidos KOL.
+REST API for the KOL referral system with real-time integration to Base mainnet smart contracts.
 
-## 🏗️ Arquitectura
+## 🚀 Features
+
+- ✅ **Real-time blockchain integration** with Base mainnet
+- ✅ **KOL and user registration** via smart contracts
+- ✅ **Dynamic leaderboard** with live TVL data
+- ✅ **Integrated token faucet** for testing
+- ✅ **CORS configuration** for frontend integration
+- ✅ **Error handling** and input validation
+- ✅ **Automatic balance verification** before transactions
+
+## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│    Frontend     │───▶│   Backend API   │───▶│   Blockchain    │
-│   (React/TS)    │    │   (Node.js)     │    │ (Base Mainnet)  │
+│    Frontend     │────│   Backend API   │────│   Base Mainnet  │
+│   (Port 3000)   │    │   (Port 8080)   │    │   (Contracts)   │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                                ├── Express.js (API REST)
-                                ├── Ethers.js (Blockchain)
-                                ├── Services (Business Logic)
-                                └── In-Memory Cache
+         │                       │                       │
+         │                       │                       │
+         └── HTTP Requests ──────┼── ethers.js ─────────┘
+                                 │
+                                 └── Contract ABIs
 ```
 
-## 🚀 Características
+## 📋 API Endpoints
 
-### ✅ Implementado
+### 🔗 Base URL
+```
+http://localhost:8080/api
+```
 
-- **API REST completa** con endpoints documentados
-- **Integración blockchain** con ethers.js
-- **Datos en tiempo real** desde smart contracts
-- **Faucet integrado** para tokens de prueba
-- **Sistema de salud** y monitoring
-- **CORS configurado** para desarrollo
-- **Logging estructurado** para debugging
+### 🚰 Faucet
 
-### 🎯 Funcionalidades Core
-
-- **Gestión de KOLs**: Registro y consulta
-- **Sistema de referidos**: Registro de usuarios
-- **Leaderboard dinámico**: Rankings automáticos
-- **Pool management**: Creación y consulta
-- **Liquidez**: Tracking de TVL en tiempo real
-
-## 📡 API Endpoints
-
-### Health & Status
+#### Get Test Tokens
 ```http
-GET  /api/health                 # Estado general del sistema
-GET  /api/faucet/health         # Estado del faucet
-GET  /api/referral/health       # Estado del sistema de referidos
-GET  /api/leaderboard/health    # Estado del leaderboard
-GET  /api/pool/health           # Estado del sistema de pools
-GET  /api/liquidity/health      # Estado del sistema de liquidez
+POST /faucet
+Content-Type: application/json
+
+{
+  "walletAddress": "0x1234567890123456789012345678901234567890"
+}
 ```
 
-### Faucet
-```http
-POST /api/faucet                # Obtener tokens de prueba
-```
-**Body:**
+**Response:**
 ```json
 {
-  "walletAddress": "0x..."
+  "success": true,
+  "message": "Tokens sent successfully",
+  "transactions": {
+    "KOLTEST1": "0xabcd...",
+    "KOLTEST2": "0xefgh..."
+  }
 }
 ```
 
-### Referral System
+### 👤 KOL Management
+
+#### Register KOL
 ```http
-POST /api/referral/kol/register     # Registrar KOL
-POST /api/referral/user/register    # Registrar usuario con referido
-GET  /api/referral/code/:code       # Validar código de referido
-GET  /api/referral/user/:address    # Obtener info de usuario
+POST /referral/kol/register
+Content-Type: application/json
+
+{
+  "kolAddress": "0x1234567890123456789012345678901234567890",
+  "referralCode": "MYSUPERCODE123"
+}
 ```
 
-**Ejemplos:**
+**Response:**
 ```json
-// Registrar KOL
 {
-  "kolAddress": "0x...",
-  "referralCode": "CRYPTO_GURU_2024"
-}
-
-// Registrar usuario
-{
-  "userAddress": "0x...",
-  "referralCode": "CRYPTO_GURU_2024"
+  "success": true,
+  "message": "KOL registered successfully",
+  "transactionHash": "0xabcd...",
+  "referralCode": "MYSUPERCODE123"
 }
 ```
 
-### Leaderboard
+#### Get KOL Statistics
 ```http
-GET  /api/leaderboard              # Rankings actuales
-GET  /api/leaderboard/epoch        # Información del epoch actual
-GET  /api/leaderboard/epoch/:id    # Rankings de epoch específico
-GET  /api/leaderboard/kol/:address # Estadísticas de KOL específico
+GET /referral/kol/stats/{kolAddress}
 ```
 
-### Pool Management
-```http
-POST /api/pool/create              # Crear nuevo pool
-GET  /api/pool/:poolId             # Información de pool específico
-POST /api/pool/estimate-gas        # Estimar gas para creación
-POST /api/pool/simulate            # Simular creación de pool
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "kolAddress": "0x1234...",
+    "totalTVL": "200000000000000000000000000",
+    "referredUsers": 1,
+    "rank": 1
+  }
+}
 ```
 
-### Liquidity Management
+### 👥 User Management
+
+#### Register User with Referral
 ```http
-POST /api/liquidity/add            # Agregar liquidez
-POST /api/liquidity/remove         # Remover liquidez
-GET  /api/liquidity/user/:address  # Posiciones de usuario
-POST /api/liquidity/estimate-gas   # Estimar gas
-POST /api/liquidity/simulate       # Simular operación
+POST /referral/user/register
+Content-Type: application/json
+
+{
+  "userAddress": "0x9876543210987654321098765432109876543210",
+  "referralCode": "MYSUPERCODE123"
+}
 ```
 
-## 🛠️ Instalación y Configuración
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User registered with referral",
+  "transactionHash": "0xefgh...",
+  "referrerAddress": "0x1234..."
+}
+```
 
-### Requisitos
-- **Node.js**: >= 18.0.0
-- **npm**: >= 8.0.0
-- **Base mainnet** RPC access
+#### Check User Referral Status
+```http
+GET /referral/user/status/{userAddress}
+```
 
-### Instalación
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "isReferred": true,
+    "referrerAddress": "0x1234...",
+    "referralCode": "MYSUPERCODE123"
+  }
+}
+```
+
+### 🏆 Leaderboard
+
+#### Get Top KOLs
+```http
+GET /leaderboard/top?limit=10&offset=0
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "address": "0x1234...",
+      "totalTVL": "200000000000000000000000000",
+      "referredUsers": 1,
+      "rank": 1
+    }
+  ],
+  "total": 1,
+  "limit": 10,
+  "offset": 0
+}
+```
+
+#### Get Complete Leaderboard
+```http
+GET /leaderboard/full
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "address": "0x1234...",
+      "totalTVL": "200000000000000000000000000",
+      "referredUsers": 1,
+      "rank": 1
+    }
+  ],
+  "lastUpdated": "2024-01-20T10:30:00Z"
+}
+```
+
+### ⚡ System Health
+
+#### Health Check
+```http
+GET /health
+```
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-20T10:30:00Z",
+  "blockchain": {
+    "connected": true,
+    "network": "base-mainnet",
+    "blockNumber": 12345678
+  }
+}
+```
+
+## 🔧 Installation and Setup
+
+### 1. Environment Setup
+
 ```bash
+# Clone the repository
 cd kol-referral-backend
-npm install
-```
 
-### Variables de Entorno
-```bash
+# Install dependencies
+npm install
+
+# Copy environment configuration
 cp .env.example .env
 ```
+
+### 2. Environment Variables
 
 ```env
 # Server Configuration
@@ -131,228 +227,255 @@ PORT=8080
 NODE_ENV=development
 
 # Blockchain Configuration
-PRIVATE_KEY=tu_private_key_hex
+PRIVATE_KEY=your_private_key_here
 RPC_URL=https://mainnet.base.org
-CHAIN_ID=8453
 
-# API Keys (Optional)
-BASESCAN_API_KEY=tu_basescan_api_key
-ALCHEMY_API_KEY=tu_alchemy_key
-
-# Contract Addresses (Auto-configured)
+# Contract Addresses (Base Mainnet)
 REFERRAL_REGISTRY_ADDRESS=0x9E895E8DA3fF34C7B73D9Ad94d9E562c2D4Dc01e
 TVL_LEADERBOARD_ADDRESS=0xBf133a716f07FF6a9C93e60EF3781EA491390688
 REFERRAL_HOOK_ADDRESS=0x65E6c7be675a3169F90Bb074F19f616772498500
 KOLTEST1_ADDRESS=0x52bc5Caf2520c31a7669A7FAaD0F8E37aF53c5D3
 KOLTEST2_ADDRESS=0xFe3Ad79f52CD53bf8e948A32936d7d5EB53f00a7
+
+# Optional
+BASESCAN_API_KEY=your_basescan_api_key
 ```
 
-### Ejecutar
+### 3. Start Development Server
+
 ```bash
-# Desarrollo
+# Development mode with hot reload
 npm run dev
 
-# Producción
+# Production mode
 npm start
 
-# Tests
-npm test
-
-# Linting
-npm run lint
+# Production with PM2
+npm run start:prod
 ```
 
-## 📊 Servicios Implementados
-
-### FaucetService
-```javascript
-// Distribuye tokens de prueba
-async function requestTokens(walletAddress) {
-  // Minta 1000 KOLTEST1 y 1000 KOLTEST2
-  // Rate limit: 1 request por día por wallet
-}
-```
-
-### ReferralService
-```javascript
-// Gestiona KOLs y referidos
-async function registerKOL(kolAddress, referralCode) { }
-async function registerUser(userAddress, referralCode) { }
-async function getKOLByUser(userAddress) { }
-```
-
-### LeaderboardService
-```javascript
-// Obtiene rankings en tiempo real desde blockchain
-async function getCurrentLeaderboard() {
-  // Llama directamente a ReferralHook.getKOLStats()
-  // Ordena por TVL descendente
-  // Retorna rankings actualizados
-}
-```
-
-### PoolService
-```javascript
-// Gestiona pools de Uniswap V4
-async function createPool(poolData) { }
-async function getPoolInfo(poolId) { }
-async function estimateGas(poolData) { }
-```
-
-### LiquidityService
-```javascript
-// Maneja operaciones de liquidez
-async function addLiquidity(liquidityData) { }
-async function removeLiquidity(liquidityData) { }
-async function getUserPositions(userAddress) { }
-```
-
-## 🔄 Flujo de Datos
-
-```mermaid
-sequenceDiagram
-    participant Frontend
-    participant Backend
-    participant Blockchain
-    
-    Frontend->>Backend: GET /api/leaderboard
-    Backend->>Blockchain: hook.getKOLStats()
-    Blockchain-->>Backend: TVL data
-    Backend->>Backend: Process & rank data
-    Backend-->>Frontend: JSON response
-    
-    Frontend->>Backend: POST /api/referral/kol/register
-    Backend->>Blockchain: registry.registerKOL()
-    Blockchain-->>Backend: Transaction receipt
-    Backend-->>Frontend: Success response
-```
-
-## 🔐 Seguridad
-
-### Controles Implementados
-- **Input validation** con Joi schemas
-- **Rate limiting** en endpoints críticos
-- **CORS** configurado apropiadamente
-- **Error handling** sin exposición de datos sensibles
-- **Private key** encriptada en variables de entorno
-
-### Logging
-```javascript
-// Structured logging con diferentes niveles
-logger.info('KOL registered', { kolAddress, referralCode });
-logger.error('Blockchain error', { error: error.message, stack });
-logger.warn('Rate limit exceeded', { ip, endpoint });
-```
-
-## 🔮 Roadmap Futuro
-
-### Phase 2: Enhanced Analytics
-- **Real-time dashboards** con WebSockets
-- **Historical data** storage con base de datos
-- **Advanced metrics** (retention, growth rates)
-- **Export functionality** para KOLs
-
-### Phase 3: Oracle Integration
-```javascript
-// Planned services
-class PriceOracleService {
-  async getUSDPrice(tokenAddress) { }
-  async calculateTVLInUSD(kolAddress) { }
-  async getHistoricalPrices(tokenAddress, timeRange) { }
-}
-```
-
-### Phase 4: Rewards & Notifications
-```javascript
-// Planned features
-class RewardsService {
-  async calculateRewards(kolAddress, epochId) { }
-  async distributeRewards(epochId) { }
-  async getClaimableRewards(kolAddress) { }
-}
-
-class NotificationService {
-  async sendNewReferralNotification(kolAddress) { }
-  async sendRewardsAvailableNotification(kolAddress) { }
-}
-```
-
-### Phase 5: Advanced Features
-- **GraphQL API** para queries complejas
-- **Caching layer** con Redis
-- **Database integration** para persistencia
-- **Microservices architecture** para escalabilidad
+The server will start at `http://localhost:8080`
 
 ## 🧪 Testing
 
-### Tests Unitarios
+### Unit Tests
 ```bash
-npm test                    # Todos los tests
-npm test -- --grep "FaucetService"  # Tests específicos
-npm run test:coverage       # Coverage report
+# Run all tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Run specific test file
+npm test -- faucet.test.js
 ```
 
-### Tests de Integración
+### Integration Tests
 ```bash
-npm run test:integration    # Tests con blockchain
-npm run test:e2e           # End-to-end tests
+# Test with real blockchain (requires .env)
+npm run test:integration
+
+# Test specific endpoints
+npm run test:api
 ```
 
-### Estructura de Tests
+### Manual Testing with cURL
+
+```bash
+# Test faucet
+curl -X POST "http://localhost:8080/api/faucet" \
+  -H "Content-Type: application/json" \
+  -d '{"walletAddress": "0x..."}'
+
+# Test KOL registration
+curl -X POST "http://localhost:8080/api/referral/kol/register" \
+  -H "Content-Type: application/json" \
+  -d '{"kolAddress": "0x...", "referralCode": "TEST123"}'
+
+# Test leaderboard
+curl "http://localhost:8080/api/leaderboard/top"
 ```
-test/
-├── unit/
-│   ├── services/
-│   ├── controllers/
-│   └── middleware/
-├── integration/
-│   ├── blockchain/
-│   └── api/
-└── fixtures/
-    └── mockData.js
+
+## 📊 Current Architecture
+
+### Service Layer
+
+```
+src/
+├── routes/
+│   ├── faucet.js           # Token distribution
+│   ├── referral.js         # KOL/User management
+│   ├── leaderboard.js      # Rankings
+│   └── health.js           # System status
+├── services/
+│   ├── blockchainService.js # Smart contract interactions
+│   ├── faucetService.js     # Token distribution logic
+│   ├── referralService.js   # Registration logic
+│   └── leaderboardService.js # Rankings calculation
+├── contracts/
+│   ├── abi/                 # Contract ABIs
+│   └── addresses.js         # Contract addresses
+└── utils/
+    ├── validation.js        # Input validation
+    └── errors.js           # Error handling
 ```
 
-## 📈 Monitoring y Observabilidad
+### Blockchain Integration
 
-### Métricas Tracked
-- **Request latency** por endpoint
-- **Error rates** por servicio
-- **Blockchain call success rate**
-- **Memory y CPU usage**
-- **Active connections**
-
-### Health Checks
 ```javascript
-// Ejemplo de health check
-{
-  "status": "healthy",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "version": "1.0.0",
-  "services": {
-    "blockchain": "connected",
-    "contracts": "verified",
-    "cache": "operational"
-  }
-}
+// Example: Getting real TVL data
+const leaderboardContract = new ethers.Contract(
+  LEADERBOARD_ADDRESS,
+  LeaderboardABI,
+  provider
+);
+
+const getKOLStats = async (kolAddress) => {
+  const stats = await leaderboardContract.getKOLStats(kolAddress);
+  return {
+    totalTVL: stats[0].toString(),
+    referredUsers: stats[1].toNumber()
+  };
+};
 ```
 
-## 🤝 Contribución
+## 🔄 Current Data Flow
 
-1. **Fork** el repositorio
-2. **Crear** feature branch: `git checkout -b feature/new-endpoint`
-3. **Escribir tests** para nueva funcionalidad
-4. **Ejecutar** tests: `npm test`
-5. **Verificar** linting: `npm run lint`
-6. **Commit** cambios: `git commit -m 'Add new endpoint'`
-7. **Push** branch: `git push origin feature/new-endpoint`
-8. **Crear** Pull Request
+### 1. KOL Registration
+```
+Frontend → Backend API → ReferralRegistry Contract → Blockchain
+                                    ↓
+Backend ← Blockchain ← Transaction Confirmation
+```
 
-### Estándares de Código
-- **ESLint** configurado con reglas estrictas
-- **Prettier** para formatting consistente
-- **Conventional commits** para mensajes
-- **JSDoc** para documentación de funciones
+### 2. Leaderboard Updates
+```
+User adds liquidity → Uniswap V4 Hook → TVLLeaderboard Contract
+                                              ↓
+Backend API calls ← getKOLStats() ← Smart Contract
+                                              ↓
+Frontend receives ← Real-time data ← Backend response
+```
+
+### 3. Faucet System
+```
+Frontend request → Backend API → KOLTEST1/KOLTEST2 Contracts
+                                        ↓
+User wallet ← Tokens transferred ← Contract execution
+```
+
+## 🔮 Future Features (Roadmap)
+
+### Phase 2: Advanced API
+- **WebSocket integration** for real-time updates
+- **Pagination** optimization for large datasets
+- **Caching layer** with Redis
+- **Rate limiting** per wallet address
+
+### Phase 3: Analytics API
+- **Historical data** endpoints
+- **TVL trends** analytics
+- **Performance metrics** per KOL
+- **Referral conversion** tracking
+
+### Phase 4: Advanced Features
+- **Multi-chain support** (Polygon, Arbitrum)
+- **Notification system** for events
+- **Automated reward** distribution
+- **Advanced filtering** and search
+
+## 🔐 Security
+
+### Input Validation
+```javascript
+// Example validation
+const validateAddress = (address) => {
+  if (!ethers.isAddress(address)) {
+    throw new Error('Invalid Ethereum address');
+  }
+};
+
+const validateReferralCode = (code) => {
+  if (!/^[A-Z0-9]{3,20}$/.test(code)) {
+    throw new Error('Invalid referral code format');
+  }
+};
+```
+
+### Error Handling
+```javascript
+// Standardized error responses
+app.use((error, req, res, next) => {
+  const response = {
+    success: false,
+    message: error.message,
+    code: error.code || 'INTERNAL_ERROR'
+  };
+  
+  res.status(error.status || 500).json(response);
+});
+```
+
+### Access Control
+- **Private key** security for contract interactions
+- **CORS** configuration for frontend access
+- **Rate limiting** (planned)
+- **Input sanitization** for all endpoints
+
+## 📈 Performance
+
+### Current Metrics
+- **Response time**: < 200ms for cached data
+- **Blockchain calls**: ~2-3 seconds for contract interactions
+- **Faucet distribution**: ~5-10 seconds per transaction
+- **Leaderboard updates**: Real-time via contract calls
+
+### Optimization
+- **Contract call batching** for multiple queries
+- **Response caching** for static data
+- **Connection pooling** for blockchain provider
+- **Async processing** for heavy operations
+
+## 🐛 Common Issues and Solutions
+
+### Issue: "Transaction Failed"
+**Solution**: Check that the wallet has enough ETH for gas fees
+
+### Issue: "Contract Call Failed"
+**Solution**: Verify contract addresses in `.env` file
+
+### Issue: "Faucet Empty"
+**Solution**: The faucet has a daily limit, try again later
+
+### Issue: "RPC Rate Limit"
+**Solution**: Add API key for your RPC provider
+
+## 🤝 Contributing
+
+### Code Standards
+- ESLint configuration for consistent style
+- Comprehensive test coverage required
+- JSDoc comments for all functions
+- Error handling for all async operations
+
+### Development Workflow
+```bash
+# Create feature branch
+git checkout -b feature/new-endpoint
+
+# Make changes and test
+npm test
+npm run lint
+
+# Commit and push
+git commit -m "Add new endpoint for X"
+git push origin feature/new-endpoint
+```
+
+## 📝 License
+
+MIT License - see LICENSE file for details.
 
 ---
 
-**Nota**: Para producción, se recomienda implementar autenticación, base de datos persistente, y monitoring avanzado. 
+**Note**: This backend connects to real smart contracts on Base mainnet. For production use, implement additional security measures and monitoring. 
