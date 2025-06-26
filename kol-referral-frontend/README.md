@@ -1,207 +1,425 @@
-# KOL Referral System Frontend
+# Frontend - KOL Referral System
 
-A modern React frontend for the KOL (Key Opinion Leader) Referral System, built with TypeScript, Tailwind CSS, and ethers.js.
+Aplicación web moderna construida en React y TypeScript que proporciona una interfaz intuitiva para el sistema de referidos KOL. Permite a usuarios interactuar con Uniswap V4 y gestionar referidos de manera sencilla.
 
-## Features
+## 🏗️ Arquitectura Frontend
 
-- 🏠 **Dashboard** - Overview of system statistics and user metrics
-- 🚰 **Faucet** - Request test tokens (KOLTEST1 & KOLTEST2)
-- 🏆 **Leaderboard** - View KOL rankings and performance
-- 🏊 **Pools** - Manage liquidity pools (coming soon)
-- 👥 **Referrals** - Track referrals and earnings (coming soon)
-- ⚙️ **Settings** - Account configuration (coming soon)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    KOL Referral Frontend                    │
+├─────────────────────────────────────────────────────────────┤
+│  React + TypeScript + Vite + TailwindCSS + MetaMask       │
+├─────────────────────────────────────────────────────────────┤
+│  Components  │  Hooks  │  Services  │  Utils  │  Types     │
+├─────────────────────────────────────────────────────────────┤
+│           useWeb3 │ useLiquidity │ useReferral            │
+├─────────────────────────────────────────────────────────────┤
+│                    Backend API                              │
+├─────────────────────────────────────────────────────────────┤
+│                 Base Mainnet (Blockchain)                  │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Tech Stack
+## 🚀 Características
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Styling
-- **React Router** - Navigation
-- **Ethers.js** - Web3 integration
-- **Axios** - HTTP client
-- **Lucide React** - Icons
-- **React Hot Toast** - Notifications
+### ✅ Implementado
 
-## Prerequisites
+- **Interfaz moderna** con TailwindCSS y componentes reutilizables
+- **Integración MetaMask** completa con detección automática
+- **Gestión de estado** con React hooks personalizados
+- **Transacciones blockchain** directas desde el frontend
+- **Actualización en tiempo real** de datos del leaderboard
+- **Faucet integrado** para obtener tokens de prueba
+- **Responsive design** compatible con móviles
 
-- Node.js 18+ 
-- npm or yarn
-- MetaMask or compatible wallet
-- Base network configured in wallet
+### 🎯 Funcionalidades Core
 
-## Installation
+- **Dashboard principal** con métricas del sistema
+- **Registro de KOLs** con códigos únicos
+- **Registro de usuarios** con referidos
+- **Leaderboard dinámico** con rankings
+- **Gestión de pools** y liquidez
+- **Wallet integration** con MetaMask
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd kol-referral-frontend
-   ```
+## 🖥️ Páginas y Componentes
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Dashboard (`/`)
+```typescript
+// Página principal con overview del sistema
+- Métricas generales (Total KOLs, TVL, etc.)
+- Acceso rápido a funcionalidades principales
+- Estado de conexión blockchain en tiempo real
+```
 
-3. **Environment setup**
-   Create a `.env` file in the root directory:
-   ```env
-   VITE_API_URL=http://localhost:8080
-   ```
+### Referrals (`/referrals`)
+```typescript
+// Gestión completa del sistema de referidos
+- Registro de KOLs con códigos únicos
+- Registro de usuarios con códigos de referidos
+- Validación en tiempo real de códigos
+- Historial de referidos por KOL
+```
 
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
+### Leaderboard (`/leaderboard`)
+```typescript
+// Rankings dinámicos de KOLs
+- Tabla de rankings por TVL
+- Información de epochs actuales
+- Métricas detalladas por KOL
+- Actualización automática cada 30s
+```
 
-5. **Open in browser**
-   Navigate to `http://localhost:3000`
+### Pools (`/pools`)
+```typescript
+// Gestión de pools de Uniswap V4
+- Creación de nuevos pools
+- Consulta de pools existentes
+- Agregar/remover liquidez
+- Estimación de gas en tiempo real
+```
 
-## Project Structure
+### Faucet (`/faucet`)
+```typescript
+// Obtención de tokens de prueba
+- Distribución automática de KOLTEST1 y KOLTEST2
+- Rate limiting visual
+- Verificación de balances automática
+- Transacciones con feedback visual
+```
 
+## 🛠️ Instalación y Configuración
+
+### Requisitos
+- **Node.js**: >= 18.0.0
+- **npm**: >= 8.0.0
+- **MetaMask**: Extensión del navegador
+- **Base network**: Configurado en MetaMask
+
+### Instalación
+```bash
+cd kol-referral-frontend
+npm install
+```
+
+### Variables de Entorno
+```bash
+cp .env.example .env
+```
+
+```env
+# Backend API URL
+VITE_API_URL=http://localhost:8080
+
+# Network Configuration (auto-detected)
+VITE_CHAIN_ID=8453
+VITE_NETWORK_NAME=Base
+
+# Optional: Analytics/Monitoring
+VITE_ANALYTICS_ID=your_analytics_id
+```
+
+### Ejecutar
+```bash
+# Desarrollo
+npm run dev
+
+# Build para producción
+npm run build
+
+# Preview del build
+npm run preview
+
+# Linting
+npm run lint
+
+# Type checking
+npm run type-check
+```
+
+## 🔧 Hooks Personalizados
+
+### useWeb3
+```typescript
+// Gestión completa de wallet y blockchain
+const { 
+  address,           // Dirección del usuario conectado
+  isConnected,       // Estado de conexión
+  connectWallet,     // Función para conectar
+  getProvider,       // Provider de ethers.js
+  chainId,          // Chain ID actual
+  switchToBase      // Cambiar a Base network
+} = useWeb3();
+```
+
+### useLiquidity
+```typescript
+// Operaciones de liquidez en Uniswap V4
+const {
+  addLiquidity,      // Agregar liquidez con Permit2
+  getTokenBalance,   // Consultar balances
+  isLoading         // Estado de carga
+} = useLiquidity();
+```
+
+### useReferral
+```typescript
+// Sistema de referidos
+const {
+  registerKOL,       // Registrar como KOL
+  registerUser,      // Registrar con código de referido
+  validateCode,      // Validar código de referido
+  isLoading         // Estado de carga
+} = useReferral();
+```
+
+### useLeaderboard
+```typescript
+// Datos del leaderboard
+const {
+  leaderboard,       // Rankings actuales
+  currentEpoch,      // Información del epoch
+  refreshData,       // Actualizar manualmente
+  isLoading         // Estado de carga
+} = useLeaderboard();
+```
+
+## 📱 Componentes UI
+
+### Layout Components
+```typescript
+// Layout principal
+<Layout>
+  <Header />         // Navigation y wallet connection
+  <Sidebar />        // Menu lateral con links
+  <Main />          // Contenido principal
+  <Footer />        // Footer con links útiles
+</Layout>
+```
+
+### Feature Components
+```typescript
+// Componentes específicos de funcionalidad
+<WalletConnect />   // Botón de conexión MetaMask
+<LeaderboardTable />// Tabla de rankings
+<LiquidityForm />   // Formulario para agregar liquidez
+<ReferralForm />    // Formulario de registro
+<PoolCreator />     // Creador de pools
+<TokenBalance />    // Display de balances
+```
+
+### UI Components
+```typescript
+// Componentes base reutilizables
+<Button />          // Botones con variants
+<Input />           // Inputs con validación
+<Card />            // Contenedores con styling
+<Modal />           // Modales con overlay
+<Toast />           // Notificaciones temporales
+<Spinner />         // Loading indicators
+```
+
+## 🎨 Sistema de Diseño
+
+### Colores (TailwindCSS)
+```css
+/* Paleta principal */
+primary: blue-600    /* Links y CTAs principales */
+secondary: gray-600  /* Texto secundario */
+success: green-500   /* Estados exitosos */
+warning: yellow-500  /* Advertencias */
+error: red-500      /* Errores */
+```
+
+### Typography
+```css
+/* Jerarquía de texto */
+heading-1: text-3xl font-bold    /* Títulos principales */
+heading-2: text-xl font-semibold /* Subtítulos */
+body: text-base                  /* Texto normal */
+caption: text-sm text-gray-500   /* Texto pequeño */
+```
+
+### Responsive Breakpoints
+```css
+/* Mobile first approach */
+sm: 640px   /* Tablet pequeña */
+md: 768px   /* Tablet */
+lg: 1024px  /* Desktop */
+xl: 1280px  /* Desktop grande */
+```
+
+## 🔄 Flujo de Usuario
+
+### Nuevo Usuario
+```mermaid
+flowchart TD
+    A[Acceder al sitio] --> B[Conectar MetaMask]
+    B --> C[Cambiar a Base network]
+    C --> D[Ir a Faucet]
+    D --> E[Obtener tokens de prueba]
+    E --> F[Registrarse con código de referido]
+    F --> G[Agregar liquidez en Pools]
+    G --> H[Ver actualización en Leaderboard]
+```
+
+### KOL (Influencer)
+```mermaid
+flowchart TD
+    A[Acceder al sitio] --> B[Conectar MetaMask]
+    B --> C[Ir a Referrals]
+    C --> D[Registrarse como KOL]
+    D --> E[Obtener código único]
+    E --> F[Compartir código con audiencia]
+    F --> G[Monitorear Leaderboard]
+    G --> H[Ver métricas de referidos]
+```
+
+## 🚀 Funcionalidades por Página
+
+### Dashboard
+- **Métricas generales**: Total TVL, KOLs activos, usuarios registrados
+- **Acceso rápido**: Links a funcionalidades principales
+- **Estado del sistema**: Health checks de contratos
+- **Últimas actividades**: Feed de transacciones recientes
+
+### Referrals
+- **Registro KOL**: Formulario con validación de código único
+- **Registro Usuario**: Input de código de referido con validación
+- **Búsqueda**: Buscar KOLs por código o dirección
+- **Estadísticas**: Métricas de referidos por KOL
+
+### Leaderboard
+- **Tabla de rankings**: Ordenada por TVL descendente
+- **Información de epochs**: Duración y estado actual
+- **Filtros**: Por época, por KOL específico
+- **Exportar**: Descargar datos en CSV (futuro)
+
+### Pools
+- **Crear pool**: Formulario completo con estimación de gas
+- **Buscar pools**: Por Pool ID o tokens
+- **Agregar liquidez**: Interfaz intuitiva con balance checking
+- **Historial**: Transacciones del usuario
+
+### Faucet
+- **Obtener tokens**: Un click para recibir tokens de prueba
+- **Rate limiting**: Indicador visual de tiempo restante
+- **Balances**: Display en tiempo real de tokens
+- **Historial**: Últimas distribuciones del faucet
+
+## 🔮 Roadmap Futuro
+
+### Phase 2: Enhanced UX
+- **Dark mode** toggle
+- **Multi-language** support (ES/EN)
+- **Advanced charts** con Chart.js
+- **Real-time notifications** con WebSockets
+- **Mobile app** con React Native
+
+### Phase 3: Advanced Features
+```typescript
+// Planned components
+<AnalyticsDashboard />  // Métricas avanzadas
+<RewardsCenter />       // Centro de rewards
+<StakingInterface />    // Interface de staking
+<GovernancePanel />     // Voting y proposals
+<ReferralTree />        // Visualización de árbol de referidos
+```
+
+### Phase 4: Gamification
+- **Achievement system** con badges
+- **Progress bars** para goals
+- **Leaderboard animations** y effects
+- **Social sharing** de logros
+- **Competition modes** entre KOLs
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+npm run test              # Tests con Vitest
+npm run test:coverage     # Coverage report
+npm run test:watch        # Watch mode
+```
+
+### E2E Tests
+```bash
+npm run test:e2e          # Playwright tests
+npm run test:e2e:ui       # UI mode
+```
+
+### Estructura de Tests
 ```
 src/
-├── components/          # React components
-│   ├── Layout.tsx      # Main layout with navigation
-│   ├── Dashboard.tsx   # Dashboard page
-│   └── Faucet.tsx      # Faucet page
-├── config/             # Configuration files
-│   └── contracts.ts    # Contract addresses and network config
-├── hooks/              # Custom React hooks
-│   └── useWeb3.ts      # Web3 wallet integration
-├── lib/                # Utility functions
-│   └── utils.ts        # Common utilities
-├── services/           # API services
-│   └── api.ts          # Backend API integration
-├── types/              # TypeScript type definitions
-│   └── index.ts        # Common types
-├── App.tsx             # Main app component
-├── main.tsx            # App entry point
-└── index.css           # Global styles
+├── __tests__/
+│   ├── components/
+│   ├── hooks/
+│   ├── services/
+│   └── utils/
+├── e2e/
+│   ├── user-flows/
+│   ├── wallet-integration/
+│   └── blockchain-interactions/
+└── test-utils/
+    └── setup.ts
 ```
 
-## Configuration
+## 🔐 Seguridad Frontend
 
-### Contract Addresses
+### Controles Implementados
+- **Input sanitization** para prevenir XSS
+- **Wallet address validation** con checksum
+- **Transaction verification** antes de envío
+- **Error boundaries** para capturar crashes
+- **Rate limiting** en UI para APIs
 
-Contract addresses are configured in `src/config/contracts.ts`:
-
+### Best Practices
 ```typescript
-export const CONTRACTS = {
-  REFERRAL_REGISTRY: '0xacd17CefE9F105aaa839D802caD0B9BEE1f80F71',
-  TVL_LEADERBOARD: '0x4839d26Aee01ffcC3bB432Cbc8024A9a388873ba',
-  REFERRAL_HOOK: '0x32E3A98a7321a4054985fA8005945dE9a92B4500',
-  KOLTEST1: '0x1c10beBe7c48ef1Ce90f673863A05aCCfD58b470',
-  KOLTEST2: '0x9729e9b448EFf06aD848d4c80bff435119DA76d1',
+// Validación de transacciones
+const validateTransaction = (tx: Transaction) => {
+  if (!ethers.isAddress(tx.to)) throw new Error('Invalid address');
+  if (tx.value < 0) throw new Error('Invalid amount');
+  // ... más validaciones
 };
+
+// Manejo seguro de private keys (nunca en frontend)
+// Solo uso de MetaMask provider
+const signer = await provider.getSigner();
 ```
 
-### Network Configuration
+## 📈 Performance
 
-The app is configured for Base mainnet:
+### Optimizaciones Implementadas
+- **Code splitting** por rutas
+- **Lazy loading** de componentes pesados
+- **Memoization** con React.memo y useMemo
+- **Bundle optimization** con Vite
+- **Image optimization** con WebP
 
-```typescript
-export const NETWORK = {
-  chainId: 8453,
-  name: 'Base',
-  rpcUrl: 'https://mainnet.base.org',
-  blockExplorer: 'https://basescan.org',
-};
-```
+### Métricas Target
+- **First Contentful Paint**: < 2s
+- **Time to Interactive**: < 3s
+- **Bundle size**: < 500KB gzipped
+- **Lighthouse score**: > 90
 
-## Usage
+## 🤝 Contribución
 
-### Connecting Wallet
+1. **Fork** el repositorio
+2. **Crear** feature branch: `git checkout -b feature/new-component`
+3. **Seguir** style guide de componentes
+4. **Escribir** tests para nuevos componentes
+5. **Ejecutar** linting: `npm run lint`
+6. **Verificar** tipos: `npm run type-check`
+7. **Commit** cambios: `git commit -m 'Add new component'`
+8. **Push** branch: `git push origin feature/new-component`
+9. **Crear** Pull Request
 
-1. Click "Connect Wallet" in the header
-2. Approve the connection in MetaMask
-3. Ensure you're on Base mainnet (chain ID: 8453)
+### Estándares de Código
+- **ESLint + Prettier** configurados
+- **TypeScript strict mode** habilitado
+- **Component naming**: PascalCase
+- **Hook naming**: use + CamelCase
+- **File naming**: kebab-case
 
-### Using the Faucet
+---
 
-1. Navigate to the Faucet page
-2. Ensure your wallet is connected
-3. Click "Request Tokens"
-4. Wait for the transaction confirmation
-5. View transaction details in the response
-
-### Rate Limiting
-
-- 1 request per wallet address per 24 hours
-- Rate limiting is enforced by the backend
-- Failed requests will show appropriate error messages
-
-## Development
-
-### Available Scripts
-
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-```
-
-### Adding New Components
-
-1. Create component file in `src/components/`
-2. Add TypeScript interfaces in `src/types/`
-3. Import and use in `App.tsx`
-4. Add navigation item in `Layout.tsx`
-
-### Styling
-
-The project uses Tailwind CSS with custom components:
-
-```css
-.btn-primary    /* Primary button styles */
-.btn-secondary  /* Secondary button styles */
-.card           /* Card container styles */
-.input-field    /* Input field styles */
-```
-
-## Backend Integration
-
-The frontend integrates with the KOL Referral Backend API:
-
-- **Base URL**: Configurable via `VITE_API_URL`
-- **Endpoints**: Faucet, health checks
-- **Authentication**: None required (public API)
-- **Rate Limiting**: Handled by backend
-
-## Deployment
-
-### Build for Production
-
-```bash
-npm run build
-```
-
-### Deploy to Vercel
-
-1. Connect repository to Vercel
-2. Set environment variables
-3. Deploy automatically on push
-
-### Environment Variables
-
-- `VITE_API_URL` - Backend API URL
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the documentation
-- Review the backend API documentation 
+**Nota**: Para producción, se recomienda implementar analytics, error tracking (Sentry), y monitoring de performance. 
