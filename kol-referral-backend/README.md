@@ -12,7 +12,7 @@ REST API for the KOL referral system with real-time integration to Base mainnet 
 - **Error handling** and input validation
 - **Automatic balance verification** before transactions
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -26,14 +26,14 @@ REST API for the KOL referral system with real-time integration to Base mainnet 
                                  └── Contract ABIs
 ```
 
-## 📋 API Endpoints
+## API Endpoints
 
-### 🔗 Base URL
+### Base URL
 ```
 http://localhost:8080/api
 ```
 
-### 🚰 Faucet
+### Faucet
 
 #### Get Test Tokens
 ```http
@@ -57,7 +57,7 @@ Content-Type: application/json
 }
 ```
 
-### 👤 KOL Management
+### KOL Management
 
 #### Register KOL
 ```http
@@ -98,7 +98,7 @@ GET /referral/kol/stats/{kolAddress}
 }
 ```
 
-### 👥 User Management
+### User Management
 
 #### Register User with Referral
 ```http
@@ -138,7 +138,7 @@ GET /referral/user/status/{userAddress}
 }
 ```
 
-### 🏆 Leaderboard
+### Leaderboard
 
 #### Get Top KOLs
 ```http
@@ -184,7 +184,7 @@ GET /leaderboard/full
 }
 ```
 
-### ⚡ System Health
+### System Health
 
 #### Health Check
 ```http
@@ -204,7 +204,7 @@ GET /health
 }
 ```
 
-## 🔧 Installation and Setup
+## Installation and Setup
 
 ### 1. Environment Setup
 
@@ -256,7 +256,7 @@ npm run start:prod
 
 The server will start at `http://localhost:8080`
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 ```bash
@@ -296,7 +296,7 @@ curl -X POST "http://localhost:8080/api/referral/kol/register" \
 curl "http://localhost:8080/api/leaderboard/top"
 ```
 
-## 📊 Current Architecture
+## Current Architecture
 
 ### Service Layer
 
@@ -339,7 +339,7 @@ const getKOLStats = async (kolAddress) => {
 };
 ```
 
-## 🔄 Current Data Flow
+## Current Data Flow
 
 ### 1. KOL Registration
 ```
@@ -364,7 +364,7 @@ Frontend request → Backend API → KOLTEST1/KOLTEST2 Contracts
 User wallet ← Tokens transferred ← Contract execution
 ```
 
-## 🔮 Future Features (Roadmap)
+## Future Features (Roadmap)
 
 ### Phase 2: Advanced API
 - **WebSocket integration** for real-time updates
@@ -384,7 +384,7 @@ User wallet ← Tokens transferred ← Contract execution
 - **Automated reward** distribution
 - **Advanced filtering** and search
 
-## 🔐 Security
+## Security
 
 ### Input Validation
 ```javascript
@@ -422,7 +422,7 @@ app.use((error, req, res, next) => {
 - **Rate limiting** (planned)
 - **Input sanitization** for all endpoints
 
-## 📈 Performance
+## Performance
 
 ### Current Metrics
 - **Response time**: < 200ms for cached data
@@ -436,7 +436,7 @@ app.use((error, req, res, next) => {
 - **Connection pooling** for blockchain provider
 - **Async processing** for heavy operations
 
-## 🐛 Common Issues and Solutions
+## Common Issues and Solutions
 
 ### Issue: "Transaction Failed"
 **Solution**: Check that the wallet has enough ETH for gas fees
@@ -450,7 +450,7 @@ app.use((error, req, res, next) => {
 ### Issue: "RPC Rate Limit"
 **Solution**: Add API key for your RPC provider
 
-## 🤝 Contributing
+## Contributing
 
 ### Code Standards
 - ESLint configuration for consistent style
@@ -472,7 +472,7 @@ git commit -m "Add new endpoint for X"
 git push origin feature/new-endpoint
 ```
 
-## 📝 License
+## License
 
 MIT License - see LICENSE file for details.
 
